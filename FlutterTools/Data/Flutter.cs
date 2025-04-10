@@ -40,5 +40,11 @@ namespace FlutterTools.Data
         {
             string[] splitted = cmdOutput.Split("\n");
         }
+        public void PrintInfo()
+        {
+            Console.WriteLine("Flutter version: " + Version);
+            Console.WriteLine("Dart version: " + DartVersion);
+            Console.WriteLine("DevTools version: " + DevToolsVersion);
+        }
     }
 }

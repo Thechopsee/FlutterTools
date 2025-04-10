@@ -38,7 +38,7 @@ namespace FlutterTools.Data
 
             if (!targetModules.Any())
             {
-                Console.WriteLine("Složky modules a packages neexistují!");
+                Console.WriteLine("Folders modules and packages didn't exist!");
                 return;
             }
 
@@ -52,11 +52,11 @@ namespace FlutterTools.Data
                 string pubspecPath = Path.Combine(moduleDir, "pubspec.yaml");
                 if (!File.Exists(pubspecPath))
                 {
-                    Console.WriteLine($"pubspec.yaml nenalezen v modulu {moduleName}");
+                    Console.WriteLine($"pubspec.yaml not found {moduleName}");
                     continue;
                 }
 
-                Console.WriteLine($"\nAnalyzuji modul: {moduleName}");
+                Console.WriteLine($"\nAnalyzing module: {moduleName}");
                 var dependencies = ParsePubspecDependencies(pubspecPath);
                 moduleDependencies[moduleName] = dependencies;
 
@@ -104,18 +104,18 @@ namespace FlutterTools.Data
                     {
                         if (!foundErrors)
                         {
-                            Console.WriteLine($"\nChyby v modulu {moduleName}:");
+                            Console.WriteLine($"\nErrors in module {moduleName}:");
                             foundErrors = true;
                         }
-                        Console.WriteLine($"  Soubor: {Path.GetFileName(file)}");
-                        Console.WriteLine($"    Import {import} není definován v pubspec.yaml");
+                        Console.WriteLine($"  File: {Path.GetFileName(file)}");
+                        Console.WriteLine($"    Import {import} not defined in pubspec.yaml");
                     }
                 }
             }
 
             if (!foundErrors)
             {
-                Console.WriteLine($"  ✓ Všechny importy jsou správně definovány v pubspec.yaml");
+                Console.WriteLine($"pubspec.yaml is ok");
             }
         }
 

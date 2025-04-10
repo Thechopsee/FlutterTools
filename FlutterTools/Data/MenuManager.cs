@@ -22,6 +22,8 @@ namespace FlutterTools.Data
             ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
             MenuAction action = keyInfo.Key switch
             {
+                ConsoleKey.F => MenuAction.OptainInfo,
+                ConsoleKey.I => MenuAction.PrintInfo,
                 ConsoleKey.D => MenuAction.Doctor,
                 ConsoleKey.Q => MenuAction.Exit,
                 ConsoleKey.P => MenuAction.PubGetAll,
@@ -63,6 +65,8 @@ namespace FlutterTools.Data
         PubGetAll,
         ModuleAnalysis,
         Visualize,
-        ChangePath
+        ChangePath,
+        OptainInfo,
+        PrintInfo
     }
 } 

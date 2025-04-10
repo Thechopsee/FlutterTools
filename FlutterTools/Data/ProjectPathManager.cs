@@ -11,7 +11,6 @@ namespace FlutterTools.Data
 
         public string GetProjectPath(string[] args)
         {
-            // Zkontroluj argumenty příkazové řádky
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-f" && i + 1 < args.Length)
@@ -20,7 +19,6 @@ namespace FlutterTools.Data
                 }
             }
 
-            // Načti poslední použitou cestu
             _lastProjectPath = LoadLastProjectPath();
 
             string projectPath = _lastProjectPath;
@@ -40,7 +38,6 @@ namespace FlutterTools.Data
                 }
             }
 
-            // Ulož novou cestu
             SaveLastProjectPath(projectPath);
             return projectPath;
         }
