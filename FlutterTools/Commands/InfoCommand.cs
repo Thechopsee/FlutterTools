@@ -1,3 +1,5 @@
+using FlutterTools.Data;
+
 namespace FlutterTools.Commands
 {
     public class InfoCommand : BaseFlutterCommand
@@ -15,7 +17,7 @@ namespace FlutterTools.Commands
             string output = ExecuteCommand(command);
            
             _flutter.parseVersionFromCMDOutput(output);
-            Console.WriteLine(outputDoctor);
+            Console.WriteLine(output);
         }
     }
 }

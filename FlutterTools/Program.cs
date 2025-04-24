@@ -49,9 +49,12 @@ namespace FlutterTools
                     case MenuAction.ModuleAnalysis:
                         new ModuleAnalysisCommand(projectPath).Execute();
                         break;
-                    case MenuAction.Visualize:
-                        new DependencyVisualizationCommand(projectPath).Execute();
+                    case MenuAction.VisualizeSubMenu:
+                        new ShowSubMenuCommand(projectPath,SubMenuType.VisualizeSubMenu).Execute();
                         break;
+                    /*case MenuAction.Visualize:
+                        new DependencyVisualizationCommand(projectPath).Execute();
+                        break;*/
                     case MenuAction.ChangePath:
                         projectPath = pathManager.ChangeProjectPath();
                         break;

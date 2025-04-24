@@ -12,7 +12,7 @@ namespace FlutterTools.Data
             Console.WriteLine("- D  Doctor");
             Console.WriteLine("- P  Run pub get in all modules/packages");
             Console.WriteLine("- M  Analyze module dependencies");
-            Console.WriteLine("- V  Visualize dependencies (requires GraphViz)");
+            Console.WriteLine("- V  Show Dependencies");
             Console.WriteLine("- C  Change project path");
             Console.WriteLine("- Q  EXIT");
         }
@@ -28,7 +28,7 @@ namespace FlutterTools.Data
                 ConsoleKey.Q => MenuAction.Exit,
                 ConsoleKey.P => MenuAction.PubGetAll,
                 ConsoleKey.M => MenuAction.ModuleAnalysis,
-                ConsoleKey.V => MenuAction.Visualize,
+                ConsoleKey.V => MenuAction.VisualizeSubMenu,
                 ConsoleKey.C => MenuAction.ChangePath,
                 ConsoleKey.Enter => MenuAction.None,
                 _ => MenuAction.Invalid
@@ -67,6 +67,12 @@ namespace FlutterTools.Data
         Visualize,
         ChangePath,
         OptainInfo,
+        VisualizeSubMenu,
         PrintInfo
+    }
+
+    public enum SubMenuType
+    {
+        VisualizeSubMenu,
     }
 } 
