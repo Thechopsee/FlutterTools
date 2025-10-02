@@ -25,12 +25,15 @@ namespace FlutterTools.Commands
 
                 Console.WriteLine($"Processing: {fullPath}");
 
-                foreach (var subDir in Directory.GetDirectories(fullPath))
+                if (folder != "application")
                 {
-                    Console.WriteLine($"Running pub get in: {subDir}");
-                    string command = "flutter pub get";
-                    string output = ExecuteCommand(command, subDir);
-                    Console.WriteLine($"Output from {Path.GetFileName(subDir)}:\n{output}");
+                    foreach (var subDir in Directory.GetDirectories(fullPath))
+                    {
+                        Console.WriteLine($"Running pub get in: {subDir}");
+                        string command = "flutter pub get";
+                        string output = ExecuteCommand(command, subDir);
+                        Console.WriteLine($"Output from {Path.GetFileName(subDir)}:\n{output}");
+                    }
                 }
             }
         }

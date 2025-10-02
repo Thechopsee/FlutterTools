@@ -15,6 +15,8 @@ namespace FlutterTools.Data
 
         public string DevToolsVersion { get; set; }
 
+        public string FlutterPath { get; set; }
+
 
         public void parseVersionFromCMDOutput(string cmdOutput)
         {
@@ -42,6 +44,7 @@ namespace FlutterTools.Data
         }
         public void PrintInfo()
         {
+            Console.WriteLine("Flutter path: " + FlutterPath);
             Console.WriteLine("Flutter version: " + Version);
             Console.WriteLine("Dart version: " + DartVersion);
             Console.WriteLine("DevTools version: " + DevToolsVersion);

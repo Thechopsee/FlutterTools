@@ -1,3 +1,4 @@
+using FlutterTools.Commands;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -8,6 +9,7 @@ namespace FlutterTools.Data
     {
         private const string ConfigFileName = "last_project_path.json";
         private string _lastProjectPath;
+        public string? FlutterPath;
 
         public string GetProjectPath(string[] args)
         {
@@ -37,6 +39,9 @@ namespace FlutterTools.Data
                     Console.WriteLine("No path was entered. Please try again.");
                 }
             }
+            var pathObj= new GetPathToFlutterSDK(projectPath);
+            pathObj.Execute();
+            FlutterPath = pathObj.PathToFlutterSDK ?? "";
 
             SaveLastProjectPath(projectPath);
             return projectPath;
