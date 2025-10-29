@@ -14,7 +14,6 @@ namespace FlutterTools
         static string? projectPath;
         static ProjectPathManager? pathManager;
         static MenuManager? menuManager;
-        //TODO: LAST output
         //TODO fix optain full info if optainer change for print full info and after print run optain in backgroud
         
         static void Main(string[] args)
