@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -23,26 +24,25 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+      - name: Build for Windows
+        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-x64
 
-      - name: Publish for macOS Apple Silicon
+      - name: Build for macOS (Apple Silicon)
         run: dotnet publish -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -o ./publish/osx-arm64
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Create or Update GitHub Release
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
+            🚀 Automaticky vytvořený build
             - Commit: ${{ github.sha }}
             - Autor: ${{ github.actor }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload build artifact to release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ./publish/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - Windows (.exe)
+            - macOS (ARM)
+          artifacts: |
+            publish/win-x64/*
+            publish/osx-arm64/*
+          allowUpdates: true
+          replacesArtifacts: true
