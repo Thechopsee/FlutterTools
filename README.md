@@ -39,7 +39,6 @@ Managing a growing Flutter codebase across multiple packages can get messy. This
 
 ## 📦 Installation
 
-*(Coming soon – for now, clone and run manually)*
 
 ```bash
 git clone https://github.com/yourusername/fluttertools.git
