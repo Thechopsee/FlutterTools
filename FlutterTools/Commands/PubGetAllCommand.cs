@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Spectre.Console;
 
 namespace FlutterTools.Commands
 {
@@ -12,30 +13,41 @@ namespace FlutterTools.Commands
         public override void Execute()
         {
             string[] targetFolders = { "modules", "packages", "application" };
+            var table = new Table();
+            table.AddColumn("Module/Package");
+            table.AddColumn("Status");
 
-            foreach (var folder in targetFolders)
-            {
-                string fullPath = Path.Combine(ProjectPath, folder);
-
-                if (!Directory.Exists(fullPath))
-                {
-                    Console.WriteLine($"Folder {folder} does not exist, skipping.");
-                    continue;
-                }
-
-                Console.WriteLine($"Processing: {fullPath}");
-
-                if (folder != "application")
-                {
-                    foreach (var subDir in Directory.GetDirectories(fullPath))
+            AnsiConsole.Status()
+                .Start("Running pub get...", ctx => {
+                    foreach (var folder in targetFolders)
                     {
-                        Console.WriteLine($"Running pub get in: {subDir}");
-                        string command = "flutter pub get";
-                        string output = ExecuteCommand(command, subDir);
-                        Console.WriteLine($"Output from {Path.GetFileName(subDir)}:\n{output}");
+                        string fullPath = Path.Combine(ProjectPath, folder);
+
+                        if (!Directory.Exists(fullPath))
+                        {
+                            continue;
+                        }
+
+                        if (folder == "application")
+                        {
+                            ctx.Status($"Running pub get in: [blue]application[/]");
+                            string output = ExecuteCommand("flutter pub get", fullPath);
+                            table.AddRow("application", output.Contains("Error") ? $"[red]{output}[/]" : "[green]Success[/]");
+                        }
+                        else
+                        {
+                            foreach (var subDir in Directory.GetDirectories(fullPath))
+                            {
+                                string folderName = Path.GetFileName(subDir);
+                                ctx.Status($"Running pub get in: [blue]{folderName}[/]");
+                                string output = ExecuteCommand("flutter pub get", subDir);
+                                table.AddRow(folderName, output.Contains("Error") ? $"[red]{output}[/]" : "[green]Success[/]");
+                            }
+                        }
                     }
-                }
-            }
+                });
+
+            AnsiConsole.Write(table);
         }
     }
 } 

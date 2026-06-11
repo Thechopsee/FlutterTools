@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace FlutterTools.Commands
@@ -15,14 +16,15 @@ namespace FlutterTools.Commands
 
         public abstract void Execute();
 
-        protected string ExecuteCommand(string command, string workingDirectory = null)
+        protected string ExecuteCommand(string command, string? workingDirectory = null)
         {
             try
             {
+                bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
                 ProcessStartInfo processInfo = new ProcessStartInfo
                 {
-                    FileName = "cmd.exe",
-                    Arguments = $"/c {command}",
+                    FileName = isWindows ? "cmd.exe" : "/bin/bash",
+                    Arguments = isWindows ? $"/c {command}" : $"-c \"{command}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -32,7 +34,7 @@ namespace FlutterTools.Commands
                     WorkingDirectory = workingDirectory ?? Directory.GetCurrentDirectory()
                 };
 
-                using (Process process = Process.Start(processInfo))
+                using (Process? process = Process.Start(processInfo))
                 {
                     string output = process.StandardOutput.ReadToEnd();
                     string error = process.StandardError.ReadToEnd();

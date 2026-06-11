@@ -17,7 +17,6 @@ namespace FlutterTools.Commands
             string output = ExecuteCommand(command);
            
             _flutter.parseVersionFromCMDOutput(output);
-            Console.WriteLine(output);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using FlutterTools.Data;
+using Spectre.Console;
 
 namespace FlutterTools.Commands
 {
@@ -28,23 +29,21 @@ namespace FlutterTools.Commands
                 switch (_subMenuType)
                 {
                     case SubMenuType.VisualizeSubMenu:
-                        Console.WriteLine("\nDependency Visualization Menu:");
-                        Console.WriteLine("- G  Graphic");
-                        Console.WriteLine("- C  Console");
-                        Console.WriteLine("- B  Back");
-                        Console.Write("Choose an option: ");
-
-                        ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-                        VisualizeDependencySubMenuAction action = keyInfo.Key switch
-                        {
-                            ConsoleKey.G => VisualizeDependencySubMenuAction.Graphic,
-                            ConsoleKey.C => VisualizeDependencySubMenuAction.Console,
-                            ConsoleKey.B => VisualizeDependencySubMenuAction.Back,
-                            ConsoleKey.Enter => VisualizeDependencySubMenuAction.None,
-                            _ => VisualizeDependencySubMenuAction.Invalid
-                        };
-
-                        Console.WriteLine(); 
+                        var action = AnsiConsole.Prompt(
+                            new SelectionPrompt<VisualizeDependencySubMenuAction>()
+                                .Title("[yellow]Dependency Visualization Menu[/]")
+                                .AddChoices(new[] {
+                                    VisualizeDependencySubMenuAction.Graphic,
+                                    VisualizeDependencySubMenuAction.Console,
+                                    VisualizeDependencySubMenuAction.Back
+                                })
+                                .UseConverter(action => action switch
+                                {
+                                    VisualizeDependencySubMenuAction.Graphic => "Graphic",
+                                    VisualizeDependencySubMenuAction.Console => "Console",
+                                    VisualizeDependencySubMenuAction.Back => "Back",
+                                    _ => action.ToString()
+                                }));
 
                         switch (action)
                         {
@@ -56,9 +55,6 @@ namespace FlutterTools.Commands
                                 return;
                             case VisualizeDependencySubMenuAction.Back:
                                 return;
-                            case VisualizeDependencySubMenuAction.Invalid:
-                                Console.WriteLine("Invalid input. Please try again.");
-                                break;
                         }
                         break;
                 }

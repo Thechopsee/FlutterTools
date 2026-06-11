@@ -1,4 +1,5 @@
 using FlutterTools.Data;
+using Spectre.Console;
 
 namespace FlutterTools.Commands
 {
@@ -14,8 +15,14 @@ namespace FlutterTools.Commands
         public override void Execute()
         {
             string commandDoctor = "flutter doctor";
-            string outputDoctor = ExecuteCommand(commandDoctor);
-            Console.WriteLine(outputDoctor);
+            string outputDoctor = "";
+
+            AnsiConsole.Status()
+                .Start("Running flutter doctor...", ctx => {
+                    outputDoctor = ExecuteCommand(commandDoctor);
+                });
+
+            AnsiConsole.Write(new Panel(outputDoctor).Header("Flutter Doctor Output").Border(BoxBorder.Rounded));
             _flutter.parseDoctorFromCMDOutput(outputDoctor);
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Spectre.Console;
 
 namespace FlutterTools.Commands
 {
@@ -14,13 +15,16 @@ namespace FlutterTools.Commands
             try
             {
                 string command = "flutter pub deps";
-                string output = ExecuteCommand(command, Path.Combine(ProjectPath, "application"));
-                Console.WriteLine("Dependencies:\n");
-                Console.WriteLine(output);
+                string output = "";
+                AnsiConsole.Status()
+                    .Start("Fetching dependencies...", ctx => {
+                        output = ExecuteCommand(command, Path.Combine(ProjectPath, "application"));
+                    });
+                AnsiConsole.Write(new Panel(output).Header("Dependencies").Border(BoxBorder.Rounded));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while listing dependencies: {ex.Message}");
+                AnsiConsole.MarkupLine($"[red]Error while listing dependencies: {ex.Message}[/]");
             }
         }
     }
