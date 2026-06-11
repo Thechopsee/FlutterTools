@@ -2,6 +2,7 @@ using FlutterTools.Commands;
 using System;
 using System.IO;
 using System.Text.Json;
+using Spectre.Console;
 
 namespace FlutterTools.Data
 {
@@ -24,21 +25,24 @@ namespace FlutterTools.Data
             _lastProjectPath = LoadLastProjectPath();
 
             string projectPath = _lastProjectPath;
-            while (string.IsNullOrEmpty(projectPath) || !Directory.Exists(projectPath))
+            if (string.IsNullOrEmpty(projectPath) || !Directory.Exists(projectPath))
             {
-                if (!string.IsNullOrEmpty(projectPath))
-                {
-                    Console.WriteLine($"Specified folder does not exist: {projectPath}");
-                }
-
-                Console.WriteLine("Enter project path:");
-                projectPath = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(projectPath))
-                {
-                    Console.WriteLine("No path was entered. Please try again.");
-                }
+                projectPath = AnsiConsole.Prompt(
+                    new TextPrompt<string>("Enter [green]project path[/]:")
+                        .Validate(path =>
+                        {
+                            if (string.IsNullOrWhiteSpace(path))
+                            {
+                                return ValidationResult.Error("[red]Path cannot be empty[/]");
+                            }
+                            if (!Directory.Exists(path))
+                            {
+                                return ValidationResult.Error("[red]Specified folder does not exist[/]");
+                            }
+                            return ValidationResult.Success();
+                        }));
             }
+
             var pathObj= new GetPathToFlutterSDK(projectPath);
             pathObj.Execute();
             FlutterPath = pathObj.PathToFlutterSDK ?? "";
@@ -49,25 +53,30 @@ namespace FlutterTools.Data
 
         public string ChangeProjectPath()
         {
-            Console.WriteLine($"Current project path: {_lastProjectPath}");
-            Console.WriteLine("Enter new project path (or press Enter to keep current):");
-            string newPath = Console.ReadLine();
+            AnsiConsole.MarkupLine($"Current project path: [blue]{_lastProjectPath}[/]");
+
+            string newPath = AnsiConsole.Prompt(
+                new TextPrompt<string>("Enter [green]new project path[/] (or press Enter to keep current):")
+                    .AllowEmpty()
+                    .Validate(path =>
+                    {
+                        if (string.IsNullOrWhiteSpace(path)) return ValidationResult.Success();
+                        if (!Directory.Exists(path))
+                        {
+                            return ValidationResult.Error("[red]Specified folder does not exist[/]");
+                        }
+                        return ValidationResult.Success();
+                    }));
 
             if (string.IsNullOrEmpty(newPath))
             {
-                Console.WriteLine("Keeping current path.");
-                return _lastProjectPath;
-            }
-
-            if (!Directory.Exists(newPath))
-            {
-                Console.WriteLine($"Specified folder does not exist: {newPath}");
+                AnsiConsole.MarkupLine("[yellow]Keeping current path.[/]");
                 return _lastProjectPath;
             }
 
             SaveLastProjectPath(newPath);
             _lastProjectPath = newPath;
-            Console.WriteLine($"Project path changed to: {newPath}");
+            AnsiConsole.MarkupLine($"Project path changed to: [blue]{newPath}[/]");
             return newPath;
         }
 

@@ -4,18 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Spectre.Console;
 
 namespace FlutterTools.Data
 {
     public class Flutter
     {
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
-        public string DartVersion { get; set; }
+        public string? DartVersion { get; set; }
 
-        public string DevToolsVersion { get; set; }
+        public string? DevToolsVersion { get; set; }
 
-        public string FlutterPath { get; set; }
+        public string? FlutterPath { get; set; }
 
 
         public void parseVersionFromCMDOutput(string cmdOutput)
@@ -44,10 +45,19 @@ namespace FlutterTools.Data
         }
         public void PrintInfo()
         {
-            Console.WriteLine("Flutter path: " + FlutterPath);
-            Console.WriteLine("Flutter version: " + Version);
-            Console.WriteLine("Dart version: " + DartVersion);
-            Console.WriteLine("DevTools version: " + DevToolsVersion);
+            var table = new Table();
+            table.AddColumn("[bold]Component[/]");
+            table.AddColumn("[bold]Value[/]");
+
+            table.AddRow("Flutter Path", $"[blue]{FlutterPath}[/]");
+            table.AddRow("Flutter Version", $"[green]{Version}[/]");
+            table.AddRow("Dart Version", $"[cyan]{DartVersion}[/]");
+            table.AddRow("DevTools Version", $"[magenta]{DevToolsVersion}[/]");
+
+            AnsiConsole.Write(
+                new Panel(table)
+                    .Header("[yellow]Flutter Info[/]")
+                    .Border(BoxBorder.Rounded));
         }
     }
 }

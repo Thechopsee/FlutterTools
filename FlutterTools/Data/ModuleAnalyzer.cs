@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using YamlDotNet.RepresentationModel;
+using Spectre.Console;
 
 namespace FlutterTools.Data
 {
@@ -38,30 +39,47 @@ namespace FlutterTools.Data
 
             if (!targetModules.Any())
             {
-                Console.WriteLine("Folders modules and packages didn't exist!");
+                AnsiConsole.MarkupLine("[red]Folders modules and packages didn't exist![/]");
                 return;
             }
 
-            foreach (var moduleName in targetModules)
-            {
-                string moduleDir = Path.Combine(
-                    Directory.Exists(Path.Combine(projectPath, "modules", moduleName)) ? "modules" : "packages",
-                    moduleName);
-                moduleDir = Path.Combine(projectPath, moduleDir);
-                
-                string pubspecPath = Path.Combine(moduleDir, "pubspec.yaml");
-                if (!File.Exists(pubspecPath))
-                {
-                    Console.WriteLine($"pubspec.yaml not found {moduleName}");
-                    continue;
-                }
+            var table = new Table();
+            table.AddColumn("Module");
+            table.AddColumn("Status");
 
-                Console.WriteLine($"\nAnalyzing module: {moduleName}");
-                var dependencies = ParsePubspecDependencies(pubspecPath);
-                moduleDependencies[moduleName] = dependencies;
+            AnsiConsole.Status()
+                .Start("Analyzing modules...", ctx => {
+                    foreach (var moduleName in targetModules)
+                    {
+                        string moduleDir = Path.Combine(
+                            Directory.Exists(Path.Combine(projectPath, "modules", moduleName)) ? "modules" : "packages",
+                            moduleName);
+                        moduleDir = Path.Combine(projectPath, moduleDir);
 
-                CheckModuleImports(moduleDir, moduleName, dependencies, targetModules);
-            }
+                        string pubspecPath = Path.Combine(moduleDir, "pubspec.yaml");
+                        if (!File.Exists(pubspecPath))
+                        {
+                            table.AddRow(moduleName, "[red]pubspec.yaml not found[/]");
+                            continue;
+                        }
+
+                        var dependencies = ParsePubspecDependencies(pubspecPath);
+                        moduleDependencies[moduleName] = dependencies;
+
+                        var errors = CheckModuleImports(moduleDir, moduleName, dependencies, targetModules);
+                        if (errors.Any())
+                        {
+                            var errorMsg = string.Join("\n", errors.Select(e => $"[red]{e}[/]"));
+                            table.AddRow(moduleName, errorMsg);
+                        }
+                        else
+                        {
+                            table.AddRow(moduleName, "[green]OK[/]");
+                        }
+                    }
+                });
+
+            AnsiConsole.Write(table);
         }
 
         private HashSet<string> ParsePubspecDependencies(string pubspecPath)
@@ -86,10 +104,10 @@ namespace FlutterTools.Data
             return dependencies;
         }
 
-        private void CheckModuleImports(string moduleDir, string moduleName, HashSet<string> allowedDependencies,List<string> targetModules)
+        private List<string> CheckModuleImports(string moduleDir, string moduleName, HashSet<string> allowedDependencies,List<string> targetModules)
         {
             var dartFiles = Directory.GetFiles(moduleDir, "*.dart", SearchOption.AllDirectories);
-            bool foundErrors = false;
+            var errors = new List<string>();
 
             foreach (var file in dartFiles)
             {
@@ -99,24 +117,14 @@ namespace FlutterTools.Data
                 
                 foreach (var import in imports)
                 {
-                    bool cc = moduleDependencies.ContainsKey(import);
                     if (!allowedDependencies.Contains(import) && import != moduleName && targetModules.Contains(import))
                     {
-                        if (!foundErrors)
-                        {
-                            Console.WriteLine($"\nErrors in module {moduleName}:");
-                            foundErrors = true;
-                        }
-                        Console.WriteLine($"  File: {Path.GetFileName(file)}");
-                        Console.WriteLine($"    Import {import} not defined in pubspec.yaml");
+                        errors.Add($"File: {Path.GetFileName(file)} - Import {import} not defined in pubspec.yaml");
                     }
                 }
             }
 
-            if (!foundErrors)
-            {
-                Console.WriteLine($"pubspec.yaml is ok");
-            }
+            return errors;
         }
 
         private List<string> ExtractImports(string content)

@@ -1,4 +1,5 @@
 using System;
+using Spectre.Console;
 
 namespace FlutterTools.Data
 {
@@ -6,37 +7,42 @@ namespace FlutterTools.Data
     {
         public void PrintMenu()
         {
-            Console.WriteLine("\nMenu:");
-            Console.WriteLine("- F  Optain full info");
-            Console.WriteLine("- I  Print optained info");
-            Console.WriteLine("- D  Doctor");
-            Console.WriteLine("- P  Run pub get in all modules/packages");
-            Console.WriteLine("- M  Analyze module dependencies");
-            Console.WriteLine("- V  Show Dependencies");
-            Console.WriteLine("- C  Change project path");
-            Console.WriteLine("- Q  EXIT");
+            // Empty because we use SelectionPrompt in HandleKeyPress
         }
 
         public MenuAction HandleKeyPress()
         {
-            ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
-            MenuAction action = keyInfo.Key switch
-            {
-                ConsoleKey.F => MenuAction.OptainInfo,
-                ConsoleKey.I => MenuAction.PrintInfo,
-                ConsoleKey.D => MenuAction.Doctor,
-                ConsoleKey.Q => MenuAction.Exit,
-                ConsoleKey.P => MenuAction.PubGetAll,
-                ConsoleKey.M => MenuAction.ModuleAnalysis,
-                ConsoleKey.V => MenuAction.VisualizeSubMenu,
-                ConsoleKey.C => MenuAction.ChangePath,
-                ConsoleKey.Enter => MenuAction.None,
-                _ => MenuAction.Invalid
-            };
+            var action = AnsiConsole.Prompt(
+                new SelectionPrompt<MenuAction>()
+                    .Title("[yellow]Main Menu[/]")
+                    .PageSize(10)
+                    .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
+                    .AddChoices(new[] {
+                        MenuAction.OptainInfo,
+                        MenuAction.PrintInfo,
+                        MenuAction.Doctor,
+                        MenuAction.PubGetAll,
+                        MenuAction.ModuleAnalysis,
+                        MenuAction.VisualizeSubMenu,
+                        MenuAction.ChangePath,
+                        MenuAction.Exit
+                    })
+                    .UseConverter(action => action switch
+                    {
+                        MenuAction.OptainInfo => "Obtain full info",
+                        MenuAction.PrintInfo => "Print obtained info",
+                        MenuAction.Doctor => "Doctor",
+                        MenuAction.PubGetAll => "Run pub get in all modules/packages",
+                        MenuAction.ModuleAnalysis => "Analyze module dependencies",
+                        MenuAction.VisualizeSubMenu => "Show Dependencies",
+                        MenuAction.ChangePath => "Change project path",
+                        MenuAction.Exit => "EXIT",
+                        _ => action.ToString()
+                    }));
 
-            if (action != MenuAction.None && action != MenuAction.Invalid)
+            if (action != MenuAction.Exit)
             {
-                DisplayActionMessage(action);
+                AnsiConsole.MarkupLine($"[blue]Executing {action}...[/]");
             }
 
             return action;
@@ -44,13 +50,7 @@ namespace FlutterTools.Data
 
         private void DisplayActionMessage(MenuAction action)
         {
-            Console.Write($"Executing {action}");
-            for (int i = 0; i < 3; i++)
-            {
-                Console.Write(".");
-                Thread.Sleep(500);
-            }
-            Console.WriteLine();
+            // No longer used, replaced by inline message in HandleKeyPress or Status
         }
 
     }

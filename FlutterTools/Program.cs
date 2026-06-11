@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Spectre.Console;
 
 namespace FlutterTools
 {
@@ -18,19 +19,28 @@ namespace FlutterTools
         
         static void Main(string[] args)
         {
+            AnsiConsole.Write(
+                new FigletText("FlutterTools")
+                    .LeftJustified()
+                    .Color(Color.Blue));
+
             pathManager = new ProjectPathManager();
             menuManager = new MenuManager();
             projectPath = pathManager.GetProjectPath(args);
 
-            Console.WriteLine($"Project path: {projectPath}");
-            Console.WriteLine($"Flutter path: {pathManager.FlutterPath}");
+            AnsiConsole.MarkupLine($"[bold]Project path:[/] [blue]{projectPath}[/]");
+            AnsiConsole.MarkupLine($"[bold]Flutter path:[/] [blue]{pathManager.FlutterPath}[/]");
 
             flutter = new Flutter();
-            flutter.FlutterPath = pathManager.FlutterPath ?? "Cant be resolved ,propably not in path";
-            new InfoCommand(projectPath, flutter).Execute();
+            flutter.FlutterPath = pathManager.FlutterPath ?? "Cant be resolved, probably not in path";
+
+            AnsiConsole.Status()
+                .Start("Obtaining info...", ctx => {
+                    new InfoCommand(projectPath, flutter).Execute();
+                });
+
             flutter.PrintInfo();
 
-            menuManager.PrintMenu();
             while (true)
             {
                 MenuAction action = menuManager.HandleKeyPress();
@@ -41,7 +51,7 @@ namespace FlutterTools
                         new DoctorCommand(projectPath, flutter).Execute();
                         break;
                     case MenuAction.Exit:
-                        Console.WriteLine("\nProgram ukončen.");
+                        AnsiConsole.MarkupLine("[yellow]Program ukončen.[/]");
                         return;
                     case MenuAction.PubGetAll:
                         new PubGetAllCommand(projectPath).Execute();
@@ -56,21 +66,19 @@ namespace FlutterTools
                         projectPath = pathManager.ChangeProjectPath();
                         break;
                     case MenuAction.Invalid:
-                        Console.WriteLine("\nNeplatná volba. Zkuste to znovu.");
+                        AnsiConsole.MarkupLine("[red]Neplatná volba. Zkuste to znovu.[/]");
                         break;
                     case MenuAction.None:
                         break;
                     case MenuAction.OptainInfo:
-                        new InfoCommand(projectPath, flutter).Execute();
+                         AnsiConsole.Status()
+                            .Start("Obtaining info...", ctx => {
+                                new InfoCommand(projectPath, flutter).Execute();
+                            });
                         break;
                     case MenuAction.PrintInfo:
                         flutter.PrintInfo();
                         break;
-                }
-                
-                if (action != MenuAction.None)
-                {
-                    menuManager.PrintMenu();
                 }
             }
         }
