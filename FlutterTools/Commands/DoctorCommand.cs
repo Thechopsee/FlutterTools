@@ -22,7 +22,7 @@ namespace FlutterTools.Commands
                     outputDoctor = ExecuteCommand(commandDoctor);
                 });
 
-            AnsiConsole.Write(new Panel(outputDoctor).Header("Flutter Doctor Output").Border(BoxBorder.Rounded));
+            AnsiConsole.Write(new Panel(Markup.Escape(outputDoctor)).Header("Flutter Doctor Output").Border(BoxBorder.Rounded));
             _flutter.parseDoctorFromCMDOutput(outputDoctor);
         }
     }

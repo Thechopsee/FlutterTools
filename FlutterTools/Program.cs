@@ -19,17 +19,9 @@ namespace FlutterTools
         
         static void Main(string[] args)
         {
-            AnsiConsole.Write(
-                new FigletText("FlutterTools")
-                    .LeftJustified()
-                    .Color(Color.Blue));
-
             pathManager = new ProjectPathManager();
             menuManager = new MenuManager();
             projectPath = pathManager.GetProjectPath(args);
-
-            AnsiConsole.MarkupLine($"[bold]Project path:[/] [blue]{projectPath}[/]");
-            AnsiConsole.MarkupLine($"[bold]Flutter path:[/] [blue]{pathManager.FlutterPath}[/]");
 
             flutter = new Flutter();
             flutter.FlutterPath = pathManager.FlutterPath ?? "Cant be resolved, probably not in path";
@@ -39,20 +31,24 @@ namespace FlutterTools
                     new InfoCommand(projectPath, flutter).Execute();
                 });
 
-            flutter.PrintInfo();
-
             while (true)
             {
+                ShowHeader();
+                flutter.PrintInfo();
+
                 MenuAction action = menuManager.HandleKeyPress();
                 
+                if (action == MenuAction.Exit)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Program ukončen.[/]");
+                    return;
+                }
+
                 switch (action)
                 {
                     case MenuAction.Doctor:
                         new DoctorCommand(projectPath, flutter).Execute();
                         break;
-                    case MenuAction.Exit:
-                        AnsiConsole.MarkupLine("[yellow]Program ukončen.[/]");
-                        return;
                     case MenuAction.PubGetAll:
                         new PubGetAllCommand(projectPath).Execute();
                         break;
@@ -60,7 +56,7 @@ namespace FlutterTools
                         new ModuleAnalysisCommand(projectPath).Execute();
                         break;
                     case MenuAction.VisualizeSubMenu:
-                        new ShowSubMenuCommand(projectPath,SubMenuType.VisualizeSubMenu).Execute();
+                        new ShowSubMenuCommand(projectPath, SubMenuType.VisualizeSubMenu).Execute();
                         break;
                     case MenuAction.ChangePath:
                         projectPath = pathManager.ChangeProjectPath();
@@ -80,7 +76,27 @@ namespace FlutterTools
                         flutter.PrintInfo();
                         break;
                 }
+
+                if (action != MenuAction.None && action != MenuAction.VisualizeSubMenu)
+                {
+                    AnsiConsole.WriteLine();
+                    AnsiConsole.MarkupLine("[grey]Press any key to return to menu...[/]");
+                    Console.ReadKey(true);
+                }
             }
+        }
+
+        static void ShowHeader()
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.Write(
+                new FigletText("FlutterTools")
+                    .LeftJustified()
+                    .Color(Color.Blue));
+
+            AnsiConsole.MarkupLine($"[bold]Project path:[/] [blue]{projectPath}[/]");
+            AnsiConsole.MarkupLine($"[bold]Flutter path:[/] [blue]{pathManager?.FlutterPath ?? "N/A"}[/]");
+            AnsiConsole.WriteLine();
         }
 
         

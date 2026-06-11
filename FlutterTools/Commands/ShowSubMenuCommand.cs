@@ -26,6 +26,12 @@ namespace FlutterTools.Commands
         {
             while (true)
             {
+                AnsiConsole.Clear();
+                AnsiConsole.Write(
+                    new FigletText("FlutterTools")
+                        .LeftJustified()
+                        .Color(Color.Blue));
+
                 switch (_subMenuType)
                 {
                     case SubMenuType.VisualizeSubMenu:
@@ -49,16 +55,25 @@ namespace FlutterTools.Commands
                         {
                             case VisualizeDependencySubMenuAction.Graphic:
                                 new DependencyVisualizationCommand(ProjectPath).Execute();
-                                return;
+                                WaitForAnyKey();
+                                break;
                             case VisualizeDependencySubMenuAction.Console:
                                 new DependencyListCommand(ProjectPath).Execute();
-                                return;
+                                WaitForAnyKey();
+                                break;
                             case VisualizeDependencySubMenuAction.Back:
                                 return;
                         }
                         break;
                 }
             }
+        }
+
+        private void WaitForAnyKey()
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[grey]Press any key to return to menu...[/]");
+            Console.ReadKey(true);
         }
     }
 }
